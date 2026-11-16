@@ -46,9 +46,10 @@ export default function Roulette() {
 
   const open = s.phase === 'betting';
   const place = (key) => open && socket.act('bet', { key, amount: chip });
-  const Cell = ({ k, children, className = '' }) => (
-    <button className={`rcell ${className}`} disabled={!open} onClick={() => place(k)}>
-      {children}
+  // Обычная функция, а не компонент: ячейки не пересоздаются при каждом обновлении стола.
+  const cell = (k, label, className = '') => (
+    <button key={k} className={`rcell ${className}`} disabled={!open} onClick={() => place(k)}>
+      {label}
       {s.myBets[k] ? <em>{compact(s.myBets[k])}</em> : null}
     </button>
   );
@@ -72,18 +73,18 @@ export default function Roulette() {
 
         <div>
           <div className="rtable">
-            <Cell k="n:0" className="green zero">0</Cell>
-            {Array.from({ length: 36 }, (_, i) => i + 1).map((n) => <Cell key={n} k={'n:' + n} className={color(n)}>{n}</Cell>)}
-            {[1, 2, 3].map((c) => <Cell key={c} k={'c:' + c} className="out">2 к 1</Cell>)}
+            {cell('n:0', 0, 'green zero')}
+            {Array.from({ length: 36 }, (_, i) => i + 1).map((n) => cell('n:' + n, n, color(n)))}
+            {[1, 2, 3].map((c) => cell('c:' + c, '2 к 1', 'out'))}
           </div>
           <div className="rtable outside">
-            {[1, 2, 3].map((d) => <Cell key={d} k={'d:' + d} className="out">{d}-я дюжина</Cell>)}
-            <Cell k="low" className="out">1–18</Cell>
-            <Cell k="even" className="out">Чёт</Cell>
-            <Cell k="red" className="out"><i className="dot red" />Красное</Cell>
-            <Cell k="black" className="out"><i className="dot black" />Чёрное</Cell>
-            <Cell k="odd" className="out">Нечёт</Cell>
-            <Cell k="high" className="out">19–36</Cell>
+            {[1, 2, 3].map((d) => cell('d:' + d, `${d}-я дюжина`, 'out'))}
+            {cell('low', '1–18', 'out')}
+            {cell('even', 'Чёт', 'out')}
+            {cell('red', <><i className="dot red" />Красное</>, 'out')}
+            {cell('black', <><i className="dot black" />Чёрное</>, 'out')}
+            {cell('odd', 'Нечёт', 'out')}
+            {cell('high', '19–36', 'out')}
           </div>
         </div>
       </div>

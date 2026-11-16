@@ -27,9 +27,9 @@ export default function Leaderboard() {
   useEffect(() => {
     let alive = true;
     setData(null);
-    const load = () => api('/leaderboard?by=' + by).then((r) => alive && setData(r)).catch(() => {});
+    const load = () => api('leaderboard', { by }).then((r) => alive && setData(r)).catch(() => {});
     load();
-    const t = setInterval(load, 10_000);
+    const t = setInterval(() => document.hidden || load(), 30_000);
     return () => { alive = false; clearInterval(t); };
   }, [by]);
 

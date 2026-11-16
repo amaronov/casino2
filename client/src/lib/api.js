@@ -1,7 +1,6 @@
-// Адрес сервера. По умолчанию — тот же хост, с которого открыта страница.
-// Для встраивания (CEF в GTA, Telegram Mini App) задайте VITE_API_URL при сборке.
-export const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+import { SUPABASE_URL, SUPABASE_KEY } from '../config.js';
 
+const ENDPOINT = SUPABASE_URL + '/functions/v1/api';
 const TOKEN_KEY = 'nova.token';
 let token = null;
 try { token = localStorage.getItem(TOKEN_KEY); } catch { /* хранилище недоступно */ }
@@ -15,19 +14,23 @@ export function setToken(t) {
   } catch { /* хранилище недоступно */ }
 }
 
-export async function api(path, { method = 'GET', body } = {}) {
+// Все запросы идут в одну Edge Function: api('lobby'), api('act', { room, a: 'spin', bet }).
+export async function api(op, payload = {}) {
   let res;
   try {
-    res = await fetch(API_BASE + '/api' + path, {
-      method,
+    res = await fetch(ENDPOINT, {
+      method: 'POST',
       headers: {
-        ...(body ? { 'Content-Type': 'application/json' } : {}),
-        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_KEY,
+        ...(token ? { 'x-casino-token': token } : {}),
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: JSON.stringify({ op, ...payload }),
     });
   } catch {
-    throw new Error('Нет связи с сервером');
+    const err = new Error('Нет связи с сервером');
+    err.offline = true;
+    throw err;
   }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

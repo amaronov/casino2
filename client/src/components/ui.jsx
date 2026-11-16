@@ -50,7 +50,8 @@ export function Amount({ value, sign = false, size }) {
 }
 
 export function Avatar({ id = 0, name = '?', size = 36 }) {
-  const hue = (id * 67 + 210) % 360;
+  // Цвет аватара выводится из идентификатора игрока.
+  const hue = [...String(id)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
   return (
     <span className="avatar" style={{
       width: size, height: size, fontSize: size * 0.42,

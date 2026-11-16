@@ -16,7 +16,7 @@ export default function Auth() {
     setError('');
     setBusy(true);
     try {
-      const r = await api(isReg ? '/auth/register' : '/auth/login', { method: 'POST', body: form });
+      const r = await api(isReg ? 'register' : 'login', form);
       signIn(r.token, r.user);
     } catch (err) {
       setError(err.message);

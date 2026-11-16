@@ -1,0 +1,5 @@
+project_id = "pkiiuuhnhsujypxixdzj"
+
+# Функция сама проверяет токены игроков, поэтому проверка JWT на шлюзе отключена.
+[functions.api]
+verify_jwt = false

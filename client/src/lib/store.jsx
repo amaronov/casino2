@@ -59,7 +59,7 @@ export function AppProvider({ children }) {
       socket.on('unauthorized', () => signOut()),
     ];
     if (getToken()) {
-      api('/me')
+      api('me')
         .then((r) => { applyUser(r.user); socket.connect(); })
         .catch((e) => { if (e.status === 401) setToken(null); })
         .finally(() => setLoading(false));

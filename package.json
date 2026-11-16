@@ -1,19 +1,17 @@
 {
-  "name": "nova-casino",
+  "name": "casino2",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev:server": "node --watch server/src/index.js",
-    "dev:client": "vite",
+    "dev": "vite",
     "build": "vite build",
-    "start": "node server/src/index.js"
+    "preview": "vite preview",
+    "deploy:api": "supabase functions deploy api --no-verify-jwt",
+    "deploy:db": "supabase db push --remote"
   },
   "dependencies": {
-    "better-sqlite3": "^11.5.0",
-    "express": "^4.21.1",
-    "jsonwebtoken": "^9.0.2",
-    "ws": "^8.18.0"
+    "@supabase/supabase-js": "^2.45.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.3",

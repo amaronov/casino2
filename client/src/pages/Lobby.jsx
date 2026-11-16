@@ -15,7 +15,7 @@ export function BonusCard() {
 
   async function claim() {
     try {
-      const r = await api('/bonus', { method: 'POST' });
+      const r = await api('bonus');
       setUser(r.user);
       toast(`Бонус получен: +${fmt(r.bonus)}`, 'success');
     } catch (e) {
@@ -49,9 +49,9 @@ export default function Lobby() {
   const [lobby, setLobby] = useState(null);
   useEffect(() => {
     let alive = true;
-    const load = () => api('/lobby').then((r) => alive && setLobby(r)).catch(() => {});
+    const load = () => api('lobby').then((r) => alive && setLobby(r)).catch(() => {});
     load();
-    const t = setInterval(load, 5000);
+    const t = setInterval(() => document.hidden || load(), 15_000);
     return () => { alive = false; clearInterval(t); };
   }, []);
 

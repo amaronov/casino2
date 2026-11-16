@@ -8,9 +8,9 @@ export function TableList({ game, render }) {
   const [tables, setTables] = useState(null);
   useEffect(() => {
     let alive = true;
-    const load = () => api('/lobby').then((r) => alive && setTables(r[game])).catch(() => {});
+    const load = () => api('lobby').then((r) => alive && setTables(r[game])).catch(() => {});
     load();
-    const t = setInterval(load, 4000);
+    const t = setInterval(() => document.hidden || load(), 10_000);
     return () => { alive = false; clearInterval(t); };
   }, [game]);
   return (

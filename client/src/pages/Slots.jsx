@@ -50,6 +50,11 @@ export default function Slots() {
   const [paytable, setPaytable] = useState(null);
   const [showPays, setShowPays] = useState(false);
   const busy = useRef(false);
+  // Лента зала не обновляется, пока крутятся свои барабаны, чтобы не выдать результат раньше времени.
+  const [feed, setFeed] = useState([]);
+  const roomRef = useRef(null);
+  roomRef.current = room;
+  useEffect(() => { if (room && !busy.current) setFeed(room.feed); }, [room]);
   const timers = useRef([]);
 
   const stop = () => {
@@ -70,6 +75,7 @@ export default function Slots() {
         setResult(r);
         busy.current = false;
         holdBalance(false);
+        setFeed(roomRef.current?.feed ?? []);
       }, 1250));
     });
     const offError = socket.on('error', () => busy.current && stop());
@@ -95,7 +101,7 @@ export default function Slots() {
   const anySpin = spinning.some(Boolean);
   const openPays = () => {
     setShowPays(true);
-    if (!paytable) api('/slots/paytable').then(setPaytable).catch(() => {});
+    if (!paytable) api('paytable').then(setPaytable).catch(() => {});
   };
 
   return (
@@ -126,7 +132,7 @@ export default function Slots() {
         Зал сейчас <span className="pill"><Icon name="users" size={14} />{room?.online ?? 0}</span>
       </h2>
       <div className="list">
-        {room?.feed.length ? room.feed.map((f) => (
+        {feed.length ? feed.map((f) => (
           <div className="row" key={f.id}>
             <Avatar id={f.userId} name={f.name} size={30} />
             <div className="grow"><b>{f.name}{f.userId === user.id ? ' (вы)' : ''}</b><span className="muted small">ставка {fmt(f.bet)}</span></div>

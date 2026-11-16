@@ -20,7 +20,7 @@ function NameEditor() {
     e.preventDefault();
     setBusy(true);
     try {
-      const r = await api('/me', { method: 'PATCH', body: { displayName: name } });
+      const r = await api('rename', { displayName: name });
       setUser(r.user);
       setEditing(false);
       toast('Имя обновлено', 'success');
@@ -60,7 +60,7 @@ export default function Profile() {
   const load = useCallback(async (offset) => {
     setLoading(true);
     try {
-      const r = await api(`/history?limit=${PAGE}&offset=${offset}`);
+      const r = await api('history', { limit: PAGE, offset });
       setItems((prev) => (offset ? [...prev, ...r.items] : r.items));
       setStats(r.stats);
       setMore(offset + r.items.length < r.stats.count);
