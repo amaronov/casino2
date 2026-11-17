@@ -22,9 +22,11 @@ function Seat({ s, idx, seat, canSit, onSit }) {
     <div className={`seat ${turn ? 'turn' : ''} ${seat.folded || !seat.inHand ? 'out' : ''} ${winner ? 'winner' : ''} ${mine ? 'mine' : ''}`}>
       {s.button === idx && s.phase !== 'waiting' && <span className="dealer-btn" title="Баттон">D</span>}
       <div className="seat-head">
-        <Avatar id={seat.id} name={seat.name} size={26} />
+        {seat.bot
+          ? <span className="avatar bot-ava" style={{ width: 26, height: 26 }}><Icon name="bot" size={16} /></span>
+          : <Avatar id={seat.id} name={seat.name} size={26} />}
         <div className="grow">
-          <b>{mine ? 'Вы' : seat.name}</b>
+          <b>{mine ? 'Вы' : seat.bot ? seat.name.replace(/^Бот /, '') : seat.name}</b>
           <span className="stack">{compact(seat.stack)}</span>
         </div>
       </div>
@@ -38,7 +40,39 @@ function Seat({ s, idx, seat, canSit, onSit }) {
           : seat.allIn ? <span className="tag allin">Олл-ин</span>
           : seat.bet > 0 ? <span className="tag bet">{compact(seat.bet)}</span> : <span className="tag ghost">&nbsp;</span>}
       </div>
-      {turn && <TimerBar endsAt={s.endsAt} total={25000} />}
+      {turn && (seat.bot ? <span className="thinking" aria-label="Бот думает"><i /><i /><i /></span>
+        : <TimerBar endsAt={s.endsAt} total={25000} />)}
+    </div>
+  );
+}
+
+// Включение игры с ботами. Боты садятся на свободные места со своим стеком
+// и уходят, когда за столом не остаётся людей.
+function BotControl({ s }) {
+  const bots = s.seats.filter((p) => p?.bot && !p.left).length;
+  const free = s.seats.filter((p) => !p).length;
+  const on = bots > 0;
+  const set = (count) => socket.act('bots', { count });
+  return (
+    <div className={`bots ${on ? 'on' : ''}`}>
+      <span className="bots-ico"><Icon name="bot" /></span>
+      <div className="grow">
+        <b>Игра с ботами</b>
+        <span className="muted small">
+          {on ? `${bots} ${bots === 1 ? 'бот' : bots < 5 ? 'бота' : 'ботов'} за столом` : free ? 'Займут свободные места' : 'Свободных мест нет'}
+        </span>
+      </div>
+      {on && (
+        <div className="stepper" role="group" aria-label="Число ботов">
+          <button onClick={() => set(bots - 1)} aria-label="Убрать бота">−</button>
+          <b>{bots}</b>
+          <button onClick={() => set(bots + 1)} disabled={!free} aria-label="Добавить бота">+</button>
+        </div>
+      )}
+      <button role="switch" aria-checked={on} aria-label="Игра с ботами" className={`switch ${on ? 'on' : ''}`}
+        disabled={!on && !free} onClick={() => set(on ? 0 : Math.min(2, free))}>
+        <span />
+      </button>
     </div>
   );
 }
@@ -145,6 +179,8 @@ function Table({ id }) {
         <div className="seats">{[5, 4, 3].map((i) => <Seat key={i} {...seatProps(i)} />)}</div>
       </div>
 
+      {seated && <BotControl s={s} />}
+
       <div className="dock sticky">
         {seated ? (
           <>
@@ -161,15 +197,15 @@ function Table({ id }) {
             </div>
             {myTurn ? <Actions s={s} me={me} />
               : <div className="dock-note">
-                  {s.phase === 'waiting' ? 'Ждём второго игрока…'
+                  {s.phase === 'waiting' ? 'Ждём второго игрока — или включите ботов'
                     : s.phase === 'showdown' ? 'Следующая раздача через пару секунд'
                     : !me.inHand ? 'Вы вступите в игру со следующей раздачи'
                     : me.folded ? 'Вы сбросили карты'
-                    : s.turn >= 0 ? `Ходит ${s.seats[s.turn]?.name}` : 'Открываем карты…'}
+                    : s.turn >= 0 ? `${s.seats[s.turn]?.bot ? 'Думает' : 'Ходит'} ${s.seats[s.turn]?.name}` : 'Открываем карты…'}
                 </div>}
           </>
         ) : (
-          <div className="dock-note">Нажмите на свободное место, чтобы сесть за стол</div>
+          <div className="dock-note">Нажмите на свободное место, чтобы сесть за стол. Потом можно включить ботов.</div>
         )}
       </div>
       <p className="muted small center">Блайнды {fmt(s.sb)} / {fmt(s.bb)} · бай-ин {fmt(s.minBuy)}–{fmt(s.maxBuy)}</p>
@@ -186,7 +222,7 @@ export default function Poker({ id }) {
       <>
         <div className="grow">
           <b>{t.name}</b>
-          <span className="muted small">Блайнды {fmt(t.sb)} / {fmt(t.bb)} · бай-ин от {fmt(t.minBuy)}</span>
+          <span className="muted small">Блайнды {fmt(t.sb)} / {fmt(t.bb)} · бай-ин от {fmt(t.minBuy)}{t.bots ? ` · ботов: ${t.bots}` : ''}</span>
         </div>
         <span className="pill"><Icon name="users" size={14} />{t.seated}/{t.seats}</span>
       </>

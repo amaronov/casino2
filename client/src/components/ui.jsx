@@ -13,6 +13,7 @@ const PATHS = {
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5.500M12 7.500v.500" /></>,
   users: <><circle cx="9" cy="8.500" r="3.500" /><path d="M2.500 19.500c.800-3 3.200-4.500 6.500-4.500s5.700 1.500 6.500 4.500M16 5.500a3.500 3.500 0 0 1 0 6.500M18.500 15.500c1.600.700 2.600 2 3 4" /></>,
   close: <path d="m6 6 12 12M18 6 6 18" />,
+  bot: <><rect x="4" y="8" width="16" height="11" rx="3.500" /><path d="M12 4.500V8M9 13v.500M15 13v.500M9.500 16.200h5M2 13v2M22 13v2" /><circle cx="12" cy="3.500" r="1" /></>,
   slots: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M9 5v14M15 5v14M5.500 12h1M11.500 12h1M17.500 12h1" /></>,
   roulette: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v6M12 15v6M3 12h6M15 12h6" /></>,
   blackjack: <><rect x="4" y="5" width="10" height="14" rx="2" transform="rotate(-8 9 12)" /><rect x="10.500" y="5" width="10" height="14" rx="2" transform="rotate(8 15.500 12)" /></>,
